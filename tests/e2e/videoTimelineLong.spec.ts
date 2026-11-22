@@ -14,6 +14,7 @@ async function longWork(page: Page, minutes: number[]) {
   await page.evaluate(() => localStorage.setItem('canvacraft.video.lengthLimit', JSON.stringify({ ms: null })));
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   await page.waitForFunction(() => (window as any).__canvacraftVideo?.store);
   for (const [index, length] of minutes.entries()) expect(await run(page, { type: 'addClip', media: media('abcdef'[index], length) })).toMatchObject({ ok: true });
 }

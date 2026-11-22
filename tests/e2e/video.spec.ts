@@ -48,6 +48,7 @@ test('시작 화면에서 영상 편집기로 들어가고, 바꾸면 저장되�
   await expect(page.getByText('처음이면 이렇게')).toBeVisible();
 
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   await expect(page.getByTestId('video-stage')).toBeVisible();
   await expect(saveState(page)).toHaveText('새 작품');
   await page.getByRole('navigation', { name: '도구' }).getByRole('button', { name: '자막' }).click();

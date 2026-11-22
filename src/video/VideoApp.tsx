@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { remember } from '../app/currentProject';
 import { createVideoProject, EMPTY_CATALOG } from '../domain/videoProject';
-import type { BuiltinCatalog, VideoProject } from '../domain/videoTypes';
+import type { BuiltinCatalog, Orientation, VideoProject } from '../domain/videoTypes';
 import { createVideoStore } from '../state/videoStore';
 import { acquireSession, VIDEO_LOCKS } from '../storage/locks';
 import { loadBuiltins, type Builtins } from './builtins';
@@ -13,6 +13,7 @@ import { openVideoProject } from './videoDatabase';
 import { downloadOriginal, VideoEditor, type VideoSession } from './VideoEditor';
 import { deserializeVideoProject } from './videoFile';
 import { VideoHome } from './VideoHome';
+import { NewVideoDialog } from './NewVideoDialog';
 import { readLengthLimit } from './lengthSetting';
 
 const newId = () => crypto.randomUUID();
@@ -24,6 +25,8 @@ export function VideoApp({ resumeId, onStart }: { resumeId: string | null; onSta
   const [screen, setScreen] = useState<Screen>({ kind: 'loading' });
   // undefined: 읽는 중, null: 읽지 못함(밈·음악 없이 편집은 된다).
   const [builtins, setBuiltins] = useState<Builtins | null | undefined>(undefined);
+  // 새 작품: 작품 목록의 새 작품과 편집기의 파일 → 새 작품 모두 방향(가로 영상·쇼츠)을 먼저 고른다. 취소하면 지금 화면 그대로다.
+  const [choosing, setChoosing] = useState(false);
   const key = useRef(0);
   const current = useRef<VideoSession | null>(null);
   const closeCurrent = useCallback(() => { current.current?.lock.release(); current.current = null; }, []);
@@ -40,7 +43,9 @@ export function VideoApp({ resumeId, onStart }: { resumeId: string | null; onSta
     setScreen({ kind: 'editor', session, note, saved, key: ++key.current });
   }, [closeCurrent, catalog]);
   const showHome = useCallback((note?: string) => { closeCurrent(); remember(null); setScreen({ kind: 'home', note, key: ++key.current }); }, [closeCurrent]);
-  const showNew = useCallback(() => { void show(createVideoProject(newId, now), undefined, true); }, [show]);
+  const showNew = useCallback(() => setChoosing(true), []);
+  const createNew = useCallback((orientation: Orientation) => { setChoosing(false); void show(createVideoProject(newId, now, undefined, orientation), undefined, true); }, [show]);
+  const chooser = choosing && <NewVideoDialog onChoose={createNew} onClose={() => setChoosing(false)} />;
   const openSaved = useCallback(async (projectId: string, note: string) => {
     const opened = await openVideoProject(projectId, catalog);
     if (opened.ok) await show(opened.project, note, true);
@@ -71,8 +76,8 @@ export function VideoApp({ resumeId, onStart }: { resumeId: string | null; onSta
   }, [builtins, resumeId, openSaved, showHome]);
 
   if (screen.kind === 'loading') return <p className="status" role="status">작품을 준비하고 있어요…</p>;
-  if (screen.kind === 'home') return <VideoHome key={screen.key} note={screen.note} onStart={() => { closeCurrent(); remember(null); onStart(); }} onNew={showNew}
-    onOpen={id => void openSaved(id, '저장된 작품을 열었어요.')} onFile={file => void openFile(file).then(problem => { if (problem) showHome(problem); })} onDownload={downloadSaved} />;
-  return <VideoEditor key={screen.key} value={screen.session} builtins={builtins ?? null} initialNote={screen.note} initiallySaved={screen.saved}
-    onHome={() => showHome()} onNew={showNew} onOpenFile={openFile} />;
+  if (screen.kind === 'home') return <><VideoHome key={screen.key} note={screen.note} onStart={() => { closeCurrent(); remember(null); onStart(); }} onNew={showNew}
+    onOpen={id => void openSaved(id, '저장된 작품을 열었어요.')} onFile={file => void openFile(file).then(problem => { if (problem) showHome(problem); })} onDownload={downloadSaved} />{chooser}</>;
+  return <><VideoEditor key={screen.key} value={screen.session} builtins={builtins ?? null} initialNote={screen.note} initiallySaved={screen.saved}
+    onHome={() => showHome()} onNew={showNew} onOpenFile={openFile} />{chooser}</>;
 }

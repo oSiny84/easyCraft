@@ -46,6 +46,7 @@ test('길이 한도: 기본 10분, 시간·분·무제한으로 바꾸고 새로
 test('길이 한도: 편집기의 영상 넣기 명령이 지금 설정을 따르고, 안내에 한도가 나온다', async ({ page }) => {
   await openHome(page);
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   await page.waitForFunction(() => (window as any).__canvacraftVideo?.store);
   // 기본 10분: 20분 영상은 넣을 수 없다.
   expect(await run(page, { type: 'addClip', media: longMedia(20) })).toMatchObject({ ok: false, code: 'LIMIT_EXCEEDED', message: '영상이 너무 길어요. 10분까지 넣을 수 있어요.' });

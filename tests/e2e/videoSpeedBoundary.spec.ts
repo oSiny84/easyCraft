@@ -15,6 +15,7 @@ async function threePieces(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   await page.getByTestId('import-video').setInputFiles({ name: 'a.webm', mimeType: 'video/webm', buffer: await fs.readFile(path.join(FIXTURE, 'a.webm')) });
   await expect(status(page)).toContainText('영상을 넣었어요', { timeout: 20000 });
   const ruler = (await page.getByTestId('timeline-ruler').boundingBox())!;

@@ -292,3 +292,13 @@ body.dragging-element, body.dragging-element * { cursor: grabbing !important; us
 .length-dialog input[type="number"] { width: 80px; height: 36px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
 .length-dialog select { height: 36px; padding: 0 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; }
 .length-dialog .length-error { color: #c92a2a; margin: 4px 0; }
+.new-video-dialog { width: 520px; }
+.orientation-choices { display: flex; gap: 12px; margin-bottom: 16px; }
+.orientation-choice { flex: 1 1 0; min-width: 0; height: auto; white-space: normal; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; font: inherit; cursor: pointer; text-align: center; }
+.orientation-choice:hover:not(:disabled), .orientation-choice:focus-visible { border-color: var(--accent); background: var(--accent-soft); }
+.orientation-choice strong { font-size: 17px; }
+.orientation-choice span:last-child { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.orientation-shape { display: block; margin: 4px 0 6px; border-radius: 6px; background: linear-gradient(135deg, #22c1c3, #7c3aed); }
+.orientation-choice.landscape .orientation-shape { width: 96px; height: 54px; margin: 29px 0 31px; }
+.orientation-choice.portrait .orientation-shape { width: 58px; height: 104px; }
+@media (max-width: 560px) { .new-video-dialog { width: calc(100vw - 32px); } }

@@ -381,6 +381,7 @@ test('영상 만들기: 배포본에서 영상 편집기를 불러와 저장하�
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await expect(page.getByRole('list', { name: '내 영상' })).toBeAttached();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   await expect(page.getByTestId('video-stage')).toBeVisible();
   await page.getByRole('textbox', { name: '작품 이름' }).fill('배포본 영상');
   await page.getByRole('textbox', { name: '작품 이름' }).press('Enter');
@@ -401,6 +402,7 @@ test('영상 가져오기와 미리보기: 배포본에서 영상 2개를 넣고
   await page.goto('./');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   const fixture = (name: string) => fs.readFile(path.join('tests/fixtures/video', name)).then(buffer => ({ name, mimeType: 'video/webm', buffer }));
   await page.getByTestId('import-video').setInputFiles([await fixture('a.webm'), await fixture('b.webm')]);
   await expect(status(page)).toContainText('영상 2개를 넣었어요', { timeout: 20000 });
@@ -424,6 +426,7 @@ test('영상 내보내기: 배포본에서 자막·밈·음악을 넣은 작품�
   await page.goto('./');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   const fixture = (name: string) => fs.readFile(path.join('tests/fixtures/video', name)).then(buffer => ({ name, mimeType: 'video/webm', buffer }));
   await page.getByTestId('import-video').setInputFiles([await fixture('a.webm'), await fixture('b.webm')]);
   await expect(status(page)).toContainText('영상 2개를 넣었어요', { timeout: 20000 });

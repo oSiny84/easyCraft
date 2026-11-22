@@ -61,17 +61,27 @@ for (const [name, make] of Object.entries(everyCommand)) test(`${name}: 실행 �
   expect(videoContent(store.getProject())).toEqual(after);
 });
 
-test('첫 영상이 방향과 프레임률을 정하고, 다음 영상은 바꾸지 않는다', () => {
+test('방향은 만들 때 고른 그대로이고, 첫 영상이 프레임률만 정하며 다음 영상은 바꾸지 않는다', () => {
+  // 가로 작품에 세로 영상을 먼저 넣어도 가로 그대로다(2026-11-22 전에는 첫 영상이 방향을 정했다).
   const store = startVideo();
+  expect(store.getProject()).toMatchObject({ orientation: 'landscape', fps: 30 });
   runVideo(store, { type: 'addClip', media: mediaB });
-  expect(store.getProject()).toMatchObject({ orientation: 'portrait', fps: 30 });
-  runVideo(store, { type: 'addClip', media: mediaA });
-  expect(store.getProject()).toMatchObject({ orientation: 'portrait', fps: 30 });
-  // 조각을 모두 지운 뒤 다시 넣으면 그 영상이 다시 정한다.
+  expect(store.getProject()).toMatchObject({ orientation: 'landscape', fps: 30 });
+  runVideo(store, { type: 'addClip', media: { ...mediaA, fps: 25 } });
+  expect(store.getProject()).toMatchObject({ orientation: 'landscape', fps: 30 });
+  // 조각을 모두 지운 뒤 다시 넣으면 그 영상이 프레임률을 다시 정한다. 방향은 그대로다.
   for (const clip of store.getProject().clips) runVideo(store, { type: 'deleteClip', clipId: clip.id });
-  expect(store.getProject()).toMatchObject({ orientation: 'portrait', clips: [] });
   runVideo(store, { type: 'addClip', media: { ...mediaA, id: 'c'.repeat(64), fps: 25 } });
   expect(store.getProject()).toMatchObject({ orientation: 'landscape', fps: 25 });
+
+  // 쇼츠(세로) 작품에 가로 영상을 넣어도 세로 그대로다.
+  const shorts = startVideo(createVideoProject(nextId, clock(), '쇼츠', 'portrait'));
+  expect(shorts.getProject()).toMatchObject({ title: '쇼츠', orientation: 'portrait', clips: [] });
+  runVideo(shorts, { type: 'addClip', media: mediaA });
+  expect(shorts.getProject()).toMatchObject({ orientation: 'portrait', fps: 30 });
+  expect(validateVideoProject(shorts.getProject(), catalog).ok).toBe(true);
+  expect(shorts.undo()).toMatchObject({ ok: true, changed: true });
+  expect(shorts.getProject()).toMatchObject({ orientation: 'portrait', clips: [] });
 });
 
 test('작품 프레임률: 40 이하로 절반씩 줄이고 24·25·30 중 가장 가까운 값', () => {

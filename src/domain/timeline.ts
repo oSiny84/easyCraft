@@ -1,5 +1,5 @@
 // 작품 시각 계산(영상 계약 §3). 시각은 모두 정수 밀리초다. DOM에 의존하지 않는다.
-import type { Clip, Media, Orientation, Overlay, VideoFps } from './videoTypes';
+import type { Clip, Overlay, VideoFps } from './videoTypes';
 import { VIDEO_FPS, VIDEO_LIMITS } from './videoLimits';
 
 // 조각의 작품 안 길이 = round((outMs − inMs) / speed). speed가 없으면 1배(계약 §3).
@@ -33,9 +33,6 @@ export function normalizeFps(fps: number): VideoFps {
   while (value > 40) value /= 2;
   return VIDEO_FPS.reduce((best, candidate) => Math.abs(candidate - value) < Math.abs(best - value) ? candidate : best, VIDEO_FPS[0]);
 }
-
-// 첫 영상의 표시 크기(회전 적용 후)로 작품 방향을 정한다. 세로가 더 길면 세로 작품.
-export const orientationOf = (media: Pick<Media, 'width' | 'height'>): Orientation => media.height > media.width ? 'portrait' : 'landscape';
 
 // [startMs, startMs + durationMs) 구간이 겹치면 같은 시각에 보인다.
 export const overlaps = (a: Overlay, b: Overlay) => a.startMs < b.startMs + b.durationMs && b.startMs < a.startMs + a.durationMs;

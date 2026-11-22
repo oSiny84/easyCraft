@@ -57,6 +57,7 @@ test('10분 작품 제품 내보내기 시간·메모리', async ({ page }, test
   await page.goto('/');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   const importStarted = Date.now();
   await page.getByTestId('import-video').setInputFiles(SOURCE);
   await expect(page.getByRole('status')).toContainText('영상을 넣었어요', { timeout: 600_000 });

@@ -17,6 +17,7 @@ async function videoWithClips(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   const file = async (name: string) => ({ name, mimeType: 'video/webm', buffer: await fs.readFile(path.join(FIXTURE, name)) });
   await page.getByTestId('import-video').setInputFiles([await file('a.webm'), await file('b.webm')]);
   await expect(status(page)).toContainText('영상 2개를 넣었어요', { timeout: 20000 });
@@ -209,6 +210,7 @@ test('세로 작품: 자막 기본 위치·폭이 세로 화면에 맞고, 화�
   await page.goto('/');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '쇼츠' }).click();
   await page.getByTestId('import-video').setInputFiles({ name: 'b.webm', mimeType: 'video/webm', buffer: await fs.readFile(path.join(FIXTURE, 'b.webm')) });
   await expect(status(page)).toContainText('영상을 넣었어요', { timeout: 20000 });
   await rail(page, '자막').click();

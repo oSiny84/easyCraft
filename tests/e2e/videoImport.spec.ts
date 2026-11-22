@@ -16,6 +16,7 @@ async function newVideo(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: '영상 만들기' }).click();
   await page.getByRole('button', { name: '새 작품' }).click();
+  await page.getByRole('dialog', { name: '새 영상 고르기' }).getByRole('button', { name: '가로 영상' }).click();
   await expect(page.getByTestId('video-stage')).toBeVisible();
 }
 async function importBoth(page: Page) {
@@ -31,7 +32,7 @@ test('가져오기: 두 영상을 넣으면 조각이 생기고, 자료 값은 f
   expect(project.mediaManifest.map((media: any) => media.id)).toEqual(expected.map((media: any) => media.id));
   expect(project.mediaManifest.map((media: any) => [media.mime, media.byteLength, media.width, media.height, media.hasAudio])).toEqual(expected.map((media: any) => [media.mime, media.byteLength, media.width, media.height, media.hasAudio]));
   for (const [index, media] of project.mediaManifest.entries()) expect(Math.abs(media.durationMs - expected[index].durationMs)).toBeLessThanOrEqual(50);
-  // 첫 영상(가로)이 방향·프레임률을 정한다.
+  // 방향은 새 작품에서 고른 가로 그대로이고, 첫 영상이 프레임률을 정한다.
   expect(project).toMatchObject({ orientation: 'landscape', fps: 30 });
   await expect(clipButtons(page)).toHaveCount(2);
   await expect(page.getByRole('list', { name: '가져온 영상' }).getByRole('listitem')).toHaveCount(2);
@@ -193,7 +194,7 @@ test('끌어놓기: 영상 파일을 편집 화면에 끌어다 놓으면 넣는
     target.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: transfer }));
   }, base64);
   await expect(status(page)).toContainText('영상을 넣었어요', { timeout: 20000 });
-  // 첫 영상이 세로이므로 세로 작품이 된다.
-  expect(await doc(page)).toMatchObject({ orientation: 'portrait', fps: 24 });
-  await expect(page.getByTestId('video-stage')).toHaveClass(/portrait/);
+  // 세로 영상을 넣어도 새 작품에서 고른 가로 그대로다(양옆이 검게 채워진다). 프레임률은 첫 영상이 정한다.
+  expect(await doc(page)).toMatchObject({ orientation: 'landscape', fps: 24 });
+  await expect(page.getByTestId('video-stage')).toHaveClass(/landscape/);
 });

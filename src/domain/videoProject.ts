@@ -1,10 +1,10 @@
-// 새 영상 작품. 방향·프레임률은 첫 영상이 들어올 때 정한다(영상 계약 §2).
+// 새 영상 작품. 방향(가로 영상·쇼츠)은 만들 때 고르고 바뀌지 않는다. 프레임률은 첫 영상이 들어올 때 정한다(영상 계약 §2).
 import { DEFAULT_AUDIO, VIDEO_SCHEMA_VERSION } from './videoLimits';
-import type { BuiltinCatalog, VideoProject } from './videoTypes';
+import type { BuiltinCatalog, Orientation, VideoProject } from './videoTypes';
 
-export function createVideoProject(newId: () => string, now: () => string, title = '내 영상'): VideoProject {
+export function createVideoProject(newId: () => string, now: () => string, title = '내 영상', orientation: Orientation = 'landscape'): VideoProject {
   const at = now();
-  return { schemaVersion: VIDEO_SCHEMA_VERSION, kind: 'video', id: newId(), title, revision: 0, createdAt: at, updatedAt: at, orientation: 'landscape', fps: 30, clips: [], overlays: [], audio: { ...DEFAULT_AUDIO }, mediaManifest: [] };
+  return { schemaVersion: VIDEO_SCHEMA_VERSION, kind: 'video', id: newId(), title, revision: 0, createdAt: at, updatedAt: at, orientation, fps: 30, clips: [], overlays: [], audio: { ...DEFAULT_AUDIO }, mediaManifest: [] };
 }
 
 // 내장 밈·음악 목록. V6에서 public/memes/manifest.json·public/sounds/manifest.json을 읽어 채운다.

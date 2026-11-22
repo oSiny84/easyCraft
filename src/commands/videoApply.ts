@@ -2,7 +2,7 @@
 // 결과 내용은 checkVideoContent를 통과해야 하며 잘못된 요청은 부분 적용하지 않는다. DOM에 의존하지 않는다.
 import { codePoints, isBlankText, normalizeColor, normalizeText } from '../domain/validate';
 import { fail, type Failure, type TextAlign } from '../domain/types';
-import { clipLength, clipStarts, locate, memeLimit, normalizeFps, orientationOf, totalMs, workOffset } from '../domain/timeline';
+import { clipLength, clipStarts, locate, memeLimit, normalizeFps, totalMs, workOffset } from '../domain/timeline';
 import { CANVAS, CLIP_SPEEDS, VIDEO_LIMITS } from '../domain/videoLimits';
 import { checkMedia, checkVideoContent, overlayBounds } from '../domain/videoValidate';
 import { DEFAULT_LENGTH_LIMIT_MS, growsPast, limitsFor, tooBigMedia, tooBigTotal, tooLongMedia, tooLongWork, type LengthLimit } from '../domain/videoLength';
@@ -138,9 +138,9 @@ export function applyVideoCommand(content: VideoProjectContent, command: VideoCo
       const before = totalMs(content.clips);
       if (longer(before, before + registered.durationMs)) return fail('LIMIT_EXCEEDED', tooLongWork(lengthLimit));
       const clip: Clip = { id: context.newId(), mediaId: registered.id, inMs: 0, outMs: registered.durationMs, muted: false };
-      // 첫 영상이 작품의 방향과 프레임률을 정한다. 그 뒤로는 바꾸지 않는다.
+      // 첫 영상이 작품의 프레임률을 정한다. 방향은 작품을 만들 때 고른 그대로다(방향이 다른 영상은 contain 여백으로 넣는다).
       const first = content.clips.length === 0;
-      const next: VideoProjectContent = { ...content, mediaManifest, clips: [...content.clips, clip], ...(first ? { orientation: orientationOf(registered), fps: normalizeFps(registered.fps) } : {}) };
+      const next: VideoProjectContent = { ...content, mediaManifest, clips: [...content.clips, clip], ...(first ? { fps: normalizeFps(registered.fps) } : {}) };
       return finish(next, clipFocus(clip.id), catalog);
     }
     case 'splitClip': {
