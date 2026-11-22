@@ -7,6 +7,10 @@
 **현재 상태**
 
 - 영상 **새 작품에서 가로 영상·쇼츠(세로)를 고르게 했다**(2026-11-22 사용자 요청: 아이가 쇼츠로 편집하는 곳을 찾지 못함, 커밋 전). 영상 작품 목록과 편집기 `파일` 메뉴의 `새 작품`이 먼저 `어떤 영상을 만들까요?` 창(`src/video/NewVideoDialog.tsx`)을 띄우고, 고른 방향은 작품이 끝날 때까지 바뀌지 않는다. 세로 화면·자막 위치·1080×1920 출력은 V1부터 있었지만 방향을 첫 영상이 정해서, 가로로 찍은 영상으로는 쇼츠를 만들 수 없었고 고르는 곳도 없었다. 이제 첫 영상은 프레임률만 정한다(계약 §2 orientation). 필드는 그대로라 v0.0.5와 작품이 서로 열린다. 쇼츠에 가로 영상을 넣고 내보낸 MP4가 1080×1920이고 위아래가 검은 것을 해독해 확인했다(`tests/e2e/videoShorts.spec.ts`). npm test 441 통과. **쇼츠 전용 길이 제한과 가로 영상을 세로에 꽉 채우는 자르기는 넣지 않았다.**
+- **앱 이름을 easyCraft로 바꿨다**(2026-11-12 사용자 요청, Canva를 따라 한 이름처럼 보여서). 바꾼 곳은 시작 화면 머리글, 브라우저 탭 제목, 실행 파일 이름(`easyCraft.exe`)과 알림 영역 아이콘·안내 창, PDF·PPT의 작성 프로그램, README·사용 설명·배포 문서다. 슬라이드 파일을 잘못 열 때의 안내는 다른 편집기와 같게 `슬라이드 작품 파일이 아니에요`로 바꿨다. 원본 파일 확장자(`.canvacraft`·`.canvaanim`·`.canvacomic`·`.canvavideo`), IndexedDB·OPFS·잠금·기억 값 이름, 실행 파일 포트(47831)와 확인 응답(`canvacraft `), 그림 PNG 안의 출처 문구는 그대로다. 예전 작품과 파일이 그대로 열리고, 예전 실행 파일이 켜져 있으면 새 실행 파일이 알아본다. 저장소 폴더·소스 파일 이름·개발 문서의 프로젝트 이름(CanvaCraft)도 그대로 두었다. 같은 날 GitHub 저장소 이름도 easyPoint에서 easyCraft로 바꾸고 로컬 연결 주소를 고쳤다(예전 주소는 GitHub이 넘겨준다, Vercel 프로젝트 이름은 사용자가 바꾼다). 시험: npm test 725개 중 724개 통과. 실패 1개(애니메이션 양파 껍질)는 따로 3번 돌려 모두 통과했고, 지운 선이 화면에서 사라지기 전에 색을 읽으면 실패하는 시험 쪽 타이밍 문제로 보인다(고치지 않음). 실행 파일 시험(`npm run test:exe`, 배포본 시험 17개 포함) 모두 통과, `easyCraft.exe` 100,472,832바이트(새 그림 포함). 시작 화면 머리글과 탭 제목이 easyCraft인 것을 화면으로 확인했다.
+- **새 그림 자산을 앱에 연결했다**(2026-11-12 사용자 요청). 그림 배경 4장(달빛 한옥 정원·햇살 가득 초록 온실·종이 기차 여행·책 속으로 떠나는 밤)을 배경 패널의 그림 배경에 더해 20장이 됐고, 캐릭터 17개(그림책 친구 6·몬스터 친구 11)를 요소 패널 `캐릭터` 탭에 새 분류로 더했다. 꽃잎도롱은 완성본만 썼고 `draft`가 붙은 2장은 넣지 않았다. 기존 그림 배경 16장·제공 배경 24장·기본 요소 120개는 바꾸지 않았다. 배경은 기존 `illustrated-background-pipeline`으로 저장했고(출처 문구의 날짜만 장마다 받게 고침), 캐릭터는 같은 방식의 새 도구 `illustrated-character-pipeline`으로 `public/characters-illustrated`에 따로 묶어 `loadLibrary`가 기본 120개 앞에 합친다. 모든 PNG는 픽셀을 바꾸지 않고 AI 생성 출처 설명(`License` 청크)만 더했고, manifest에 해시·크기·프롬프트 경로를 적었으며, 배경 320×180·캐릭터 160×160 미리보기를 만들었다. **연결 전 검사**: 캐릭터 17개 모두 RGBA이고 네 모서리가 투명하며 가장자리 2px 안에 그림이 없다(알파 16 초과 기준). 검은 배경 위에서 직접 봐도 잘림이나 뿌연 테두리는 없었다. 펭귄은 위쪽 여백이 2px로 가장 좁지만 잘리지 않았다. 몸통의 알파는 250~254라 눈으로는 불투명과 같다. 배경 4장은 불투명 1672×941이고 글자·워터마크가 없다. **시험**: 그림 캐릭터 시험은 17개를 넣고(원본 픽셀 투명 확인 포함), 원본 저장 뒤 새 프로필에서 캐릭터 파일 없이 다시 연다. 이어 편집용 PPT에 원본 PNG가 해시 그대로 들어갔는지, 모양 그대로 PPT의 그림 상자 모서리에 어두운 배경색이 보이는지(투명 유지) 보고, PDF 2쪽을 확인한다. 그림 배경 시험은 20장으로 늘렸다. `tests/e2e/library.spec.ts` 16개 통과, `tests/contracts/library.spec.ts` 10개 통과, 전체 npm test 725개 통과(배포본 시험과 실행 파일 시험은 다시 돌리지 않았다). 개발 서버 화면에서 어두운 그림 배경 위에 우주 토끼와 빙글물범을 넣어 흰 네모 없이 보이는 것을 직접 봤다. 출력 크기는 캐릭터 17개를 모두 쓴 작품이 원본 21.3MB·편집용 PPT 20.2MB·모양 그대로 PPT 0.2MB·PDF 0.3MB, 그림 배경 20장 작품의 PDF가 11.1MB다. **남은 문제**: ① 캐릭터를 원본 크기(1254px 안팎, 장당 0.8~2.1MB) 그대로 넣으므로 하나 넣을 때마다 작품과 편집용 PPT가 그만큼 커진다. ② 배포 결과와 실행 파일이 약 33MB(배경 11.8MB, 캐릭터 22.9MB) 커진다. 실행 파일은 다시 만들지 않았다. ③ 요소 패널의 `그림 출처와 사용 조건` 링크는 Fluent Emoji MIT 파일만 연다. 새 그림의 출처 설명은 PNG 안과 manifest에만 있다. ④ 배경 분류(한옥·온실은 자연, 기차는 모험, 책은 동화)와 캐릭터 분류 이름은 임의로 정했다. ⑤ 몬스터 그림의 JSON에는 날짜가 없어 파일 시각(2026-11-12)으로 적었다. ⑥ 애니메이션·만화 편집기도 같은 요소 패널을 쓰므로 새 캐릭터가 보이지만 그쪽에서는 따로 시험하지 않았다. ⑦ 원래 폴더(`C:/D_ClaudeDevelop/CanvaCraft`)의 `public` 아래에 있던 원본 팩 둘(`art-expansion-2026-11-12`, `creature-friends`, 파일 48개·37MB)은 사용자 요청으로 저장소 밖 `C:/D_ClaudeDevelop/CanvaCraft-art-originals/2026-11-12/`로 옮겼다(지우지 않음, 파일 수·바이트 수 같음 확인). public에 두면 그 폴더에서 빌드할 때 배포 결과에 함께 들어가기 때문이다. 꽃잎도롱 시안 2장과 원래 JSON도 그곳에 있다.
+- 셋째 타일 **스톱모션 애니메이션 편집기를 만들었다**(2026-11-10, 기획 [ANIMATION_PLAN.md](ANIMATION_PLAN.md), 계약 [animation-contracts.md](animation-contracts.md), 측정 [ANIMATION_PHASE2_RESULTS.md](ANIMATION_PHASE2_RESULTS.md)). 시작 화면의 `애니메이션 만들기`로 들어가 슬라이드와 같은 도구로 한 장을 그리고, `+`로 지금 장을 복사해 조금씩 고치고(앞 장이 흐리게 깔려 보인다), `재생`으로 움직임을 보고, 빠르기(1초에 2·4·6·8·12장)·길게 보이기(2배·4배)·배경음악을 정해 `공유` → `다운로드` → `영상 (MP4)`로 내려받는다. PPT·PDF도 그대로 된다. 사용자가 정한 구조(중간안)대로 문서(`AnimationProject`)·저장소(IndexedDB `canvacraft-animation`)·원본 파일(`.canvaanim`)·작품 목록은 따로 두고, 장 형태·편집 명령 18개·`renderSlide`·편집 화면은 슬라이드 것을 다시 쓴다. 결정 14개는 구조만 중간안이고 나머지는 기본값이다(웹캠으로 찍기는 후속). 슬라이드 쪽에서 바뀐 것은 편집 화면을 `src/app/Editor.tsx`로 옮겨 선택 인자를 연 것, `SlideList`·`SlideCanvas`·`TopBar`의 선택 인자, 시작 화면 셋째 타일, `export` 낱말 몇 곳이다. 슬라이드의 문서 형태·검사·명령·저장 코드·원본 파일 형식은 바뀌지 않았고 슬라이드·영상 시험 파일은 고치지 않았다. A2 측정(개발 PC, 시험 페이지): 100장 작품의 그리기 합계 0.2~10.6초, 내보내기 전체 1.9~12.1초, 출력 프레임 수·길이·장 전환이 식과 일치. 자동 시험: npm test 550 통과(애니메이션 124개 포함), 배포본 시험 16 통과(애니메이션 1개 추가, CSP 위반 0건), 실행 파일 시험(`node scripts/test-exe.mjs`, 66,604,032바이트) 모두 통과. **사람이 직접 써 보지 않았고**, Windows 미디어 플레이어·YouTube, RAM 8GB PC, 실제 사진, 어린이 관찰, 실제 터치 기기는 확인하지 않았다. 작업 브랜치 `claude/kids-program-features-205ebd`에 커밋했고, 만화 편집기·영상 v0.0.5와 함께 `v0.0.6` 프리릴리스로 올렸다(2026-11-12).
+- 넷째 타일 **만화 만들기 편집기를 만들었다**(2026-11-12, 기획 [COMIC_PLAN.md](COMIC_PLAN.md), 계약 [comic-contracts.md](comic-contracts.md), K2 확인 [COMIC_PHASE2_RESULTS.md](COMIC_PHASE2_RESULTS.md)). 시작 화면의 `만화 만들기`로 들어가 슬라이드와 같은 도구로 칸을 하나씩 그리고, `만화` 도구에서 말풍선(9종)을 눌러 바로 대사를 쓰고, 효과 그림(12종)·효과 글씨(6종)를 올리고, `+`로 다음 칸을 만들고, `만화 보기`로 칸들이 A4 한 쪽에 모인 모습을 본 뒤 `공유` → `다운로드`에서 `만화책 (PDF)`나 `그림 (PNG)`로 내려받는다. 사용자 결정 14개는 모두 기본값이다("기본값으로 진행"). 칸 하나가 슬라이드의 장 하나이고(칸 비율 16:9 고정), 말풍선은 사진 요소와 글씨 요소의 짝으로 만화 문서(`bubbles`)가 기억해 옮기기·크기 바꾸기·지우기·복제·순서 바꾸기·칸 복제 때 함께 움직인다. 문서(`ComicProject`)·저장소(IndexedDB `canvacraft-comic`)·원본 파일(`.canvacomic`)·작품 목록은 따로 두고, 장 형태·편집 명령 18개·`renderSlide`·편집 화면은 슬라이드 것을 다시 쓴다. 저장·원본 파일·작품 목록·세션 코드는 애니메이션 코드에서 공통 틀(`src/deck/`)을 꺼내 두 편집기가 함께 쓴다(애니메이션 시험 124개 무수정 통과). 슬라이드 쪽에서 바뀐 것은 편집 화면의 선택 인자 넷(내려받기 창에 더한 형식만 보이기, 글씨를 입력 상태로 열기, 끄는 동안 함께 그릴 요소, 내려받기를 누른 때의 장), 넷째 타일, 잠금 이름·기억 값 한 줄씩이다. 슬라이드·영상의 문서 형태·검사·명령·저장 코드·원본 파일 형식은 바뀌지 않았고 슬라이드·영상·애니메이션 시험 파일은 고치지 않았다(배포본 시험에 만화 1건 추가). K2 확인(개발 PC, 번들 Chromium): 100칸 작품의 만화책 PDF 0.7~1.7초·5.4~12.1MB. 자동 시험: npm test 706 통과(만화 156개 포함), 배포본 시험 17 통과(CSP 위반 0건), 실행 파일 시험(`node scripts/test-exe.mjs`, 67,174,400바이트) 모두 통과. 2026-11-12 사용자가 개발 서버로 써 본 뒤 커밋·푸시·릴리스를 요청했다(어떤 항목까지 봤는지는 듣지 못했다). **인쇄는 해 보지 않았다.** RAM 8GB PC, 실제 터치 기기, 어린이 관찰도 확인하지 않았다. 작업 브랜치 `claude/kids-program-features-205ebd`에 커밋하고, 영상 브랜치의 v0.0.5(빠른 조각 미리보기 깜빡임 수정·스페이스 재생)를 합친 뒤 `v0.0.6` 프리릴리스로 올렸다(2026-11-12, 합친 뒤 npm test 719 통과). 애니메이션 편집기는 2026-11-12에 사용자가 개발 서버로 직접 써 보고 잘 된다고 했다(어떤 항목까지 봤는지는 듣지 못했다. Windows 미디어 플레이어·YouTube·RAM 8GB PC는 미확인으로 둔다).
 - 영상 미리보기의 **빠른 조각 깜빡임과 스페이스 재생을 고쳤다**(2026-11-10 사용자 보고, 커밋 c4af38e). 한 영상을 두 번 잘라 가운데만 2배로 하면 그 조각으로 넘어갈 때 화면이 검게 깜빡였다. 이제 깜빡이지 않는다. 스페이스는 조각·단추·빠르기 상자·배율 막대를 마우스로 누른 뒤에도 재생·일시정지를 바꾼다(전에는 그 단추를 다시 누르거나 목록을 열었다). 글자를 넣는 칸, 창·메뉴 안, Tab으로 옮겨 간 단추에서는 원래 동작을 둔다. 깜빡임의 원인은 `<video>`가 재생을 시작하며 잠깐 멈춰 있는 시간을 어긋남으로 센 것이다. 원본 시간으로 재서 2배 조각에서는 2배로 보였고, 150ms를 넘으면 위치를 다시 맞췄는데 다시 맞춰도 같은 지연이 생겨 되풀이됐으며, 맞추는 동안에는 검게 그렸다. 이제 시작 지연을 기준으로 삼아 그 뒤 150ms 넘게 벗어날 때만 다시 맞추고(`src/video/previewSync.ts`), 재생 중에는 검은 화면 대신 마지막 영상 프레임을 둔다(계약 §8 미리보기). 개발 PC에 블루투스 이어폰이 연결된 상태(소리 출력 지연 0.29초)에서 시험 영상으로 쟀다: 고치기 전 검은 화면 9회·다시 맞춤 9회(2배·4배 모두, 보통 빠르기 조각에서도 생김) → 고친 뒤 0회·0회. **프리릴리스 v0.0.5에 들어 있다(v0.0.4에는 없다).** 남은 것: 소리가 늦게 나가는 장치에서는 조각이 바뀔 때마다 영상이 0.3초쯤 멈췄다 움직이고 그만큼 늦게 따라간다(검게 깜빡이지는 않는다. 내보낸 파일과는 관계없다). 사용자가 본 깜빡임이 어떤 소리 장치에서 났는지와 실제 휴대폰 영상은 확인하지 않았다.
 - 어린이용 **영상 편집기**를 기획하고 V1 계약을 썼다(2026-11-07, [VIDEO_EDITOR_PLAN.md](VIDEO_EDITOR_PLAN.md), [video-contracts.md](video-contracts.md)). 같은 앱에 시작 화면(슬라이드 만들기 / 영상 만들기)을 추가하고, 영상 가져오기·자르기·자막(보이는 시간 지정)·움직이는 밈(투명 스티커·소리 든 짧은 밈 영상)·효과음·소리·YouTube용 MP4 내보내기를 8단계(V1~V8)로 만든다. 사용자 결정 7개는 모두 기본값으로 확정됐고(2026-11-07 "기본값으로 진행"), 밈·효과음 자산의 출처만 V6 전까지 다시 묻는다. 계약은 필드·명령 18개·검사·상한·저장·출력 규칙을 정했다.
 - 영상 편집기 **V2 기술 검증을 개발 PC에서 마쳤다**(2026-11-09, [VIDEO_PHASE2_RESULTS.md](VIDEO_PHASE2_RESULTS.md)). 브라우저 Worker 안에서 해독·자막·밈 합성·인코딩해 MP4(H.264+AAC)·WebM(VP9+Opus)으로 내는 경로가 Chrome·Edge·번들 Chromium에서 동작한다. 10분 1080p 작품 출력이 MP4 101초·WebM 192초, 브라우저 메모리 최대 1.2GB였고 출력 프레임 번호·길이·재생을 자동으로 확인했다. 계약의 V2 결정 8개를 채웠다(스티커 애니메이션 WebP, 영상 바이트 OPFS, Mediabunny 1.62.1, 8Mbps, Worker가 소리 직접 합산, `.canvavideo` 자체 스트리밍 ZIP 등). 측정 중 계약 결함 2건(원본 프레임 찾기 1ms 허용, 2GiB 해시 방식)을 고쳤다. 같은 날 **RAM 8GB 가상 PC(VirtualBox, 그래픽 가속 없음)**에서도 10분 출력 6종이 모두 성공했고 가장 느린 출력이 1,048초로 시간 목표(1,200초) 안이었다. 그러나 **브라우저 메모리 최대값이 MP4 1.4~2.4GB, WebM 3.8~5.6GB로 목표 1.5GB를 넘었고 원인은 아직 모른다**(VIDEO_PHASE2_RESULTS.md §4.1). 개발 PC에서 그래픽 가속을 끄고 재현해 보았지만 메모리가 평평해 재현되지 않았고, 실제 PC는 이보다 나을 것으로 보고 조사를 보류했다(사용자 결정). 실제 휴대폰 영상, Windows 미디어 플레이어·YouTube도 미검증이라 길이 상한 10분과 MP4 우선은 잠정이다.
@@ -32,7 +36,7 @@
 - 사용자가 자동 저장, 다시 열기, 둘째 탭 읽기 전용, 글꼴 변경을 실제 브라우저에서 확인했다(2026-11-06). 실제 저장 공간 부족은 확인하지 않았다.
 - 이번 배치는 UI_REFERENCE.md와 맞춘 것이며 실제 Canva 편집기와 일치하는지 검증한 것은 아니다.
 - Phase 2의 사람·기기 확인 8개는 아직 미검증이다.
-- git 저장소가 있다(origin: easyPoint, 2026-11-06 16시경 커밋 `phase8`). Phase 9·10과 실행 파일은 main에 합쳤다. 그림 배경 16종도 main에 합쳤다. 저장소는 공개 상태이고, 실행 파일은 릴리스로 공개했다. 웹 호스트 배포는 하지 않았다.
+- git 저장소가 있다(origin: easyCraft, 2026-11-12에 easyPoint에서 이름을 바꿨고 예전 주소는 GitHub이 넘겨준다. 2026-11-06 16시경 커밋 `phase8`). Phase 9·10과 실행 파일은 main에 합쳤다. 그림 배경 16종도 main에 합쳤다. 2026-11-12 사용자 요청으로 영상·애니메이션·만화와 Vercel 설정까지 담은 `claude/kids-program-features-205ebd`를 main에 합쳤다(앞으로 당기기, 커밋 `b7a0164`). 저장소는 공개 상태이고, 실행 파일은 릴리스로 공개했다. 웹 호스트 배포는 하지 않았다.
 
 **진행률**
 
@@ -40,12 +44,21 @@
 - 계약의 편집 명령 18개 중 18개 모두 화면에 연결됐다.
 - 슬라이드 편집기의 도구 패널 6개가 모두 동작한다. 슬라이드 쪽에는 준비 중으로 남은 화면이 없다.
 - 영상 편집기는 8단계 중 V8 진행 중이다. 영상을 넣고 자르고 자막·밈·음악을 넣어 MP4로 내보낼 수 있고, 실행 파일 시험과 10분 출력 측정(개발 PC)을 마쳤다. 남은 것은 사람·기기 확인과 어린이 관찰이다.
+- 애니메이션 편집기는 7단계 중 A6까지 구현했고 A7(통합)의 자동 시험·사용 설명·인계 문서를 마쳤다. 남은 것은 사람 확인이다.
+- 만화 편집기는 7단계(K1~K7)의 자동 시험·사용 설명·인계 문서를 마쳤다. 남은 것은 사람 확인(인쇄, 어린이 관찰)이다.
+- `v0.0.6`(2026-11-12 프리릴리스)은 애니메이션·만화 편집기와 영상 v0.0.5까지 담는다. 브랜치는 `claude/kids-program-features-205ebd`이고 2026-11-12 main에 합쳤다. 영상 브랜치의 커밋도 모두 들어 있다.
+- `v0.0.7`(2026-11-14 프리릴리스로 올렸다가 같은 날 사용자 요청으로 정식 릴리스로 바꿈, GitHub 최신)은 v0.0.6에 이름 변경(easyCraft)과 그림 배경 4장·캐릭터 17개를 더한 것이다. main의 커밋에서 만들었고 실행 파일 이름이 `easyCraft.exe`로 바뀌었다.
+- Vercel에 올릴 설정(`vercel.json`)을 준비했다(2026-11-12). 실제로 올려 보지는 않았다. 절차와 주의점은 [RELEASE.md](RELEASE.md) §Vercel에 올리기에 있다. 같은 날 npm test는 723개 중 722개 통과, 배포본 시험 17개 통과였다. 실패 1개는 영상 미리보기의 자른 자리 경계(350~400ms, 기준 200ms)였다. Chromium 소리 출력을 끄면 같은 코드에서 100~116ms로 통과했다(3회). 기록은 [video-contracts.md](video-contracts.md) §9 V4 행에 있다.
 
 **다음 액션**
 
+0. 만화책 PDF를 프린터로 한 장 뽑아 여백과 글씨 선명도를 본다 (사용자, K2에서 못 한 확인). `v0.0.7` 실행 파일(`easyCraft.exe`)을 집 PC에서 켜 보고 애니메이션·만화와 새 그림을 써 본다. 예전 `CanvaCraft.exe`가 켜져 있으면 먼저 끈다. 괜찮으면 정식 릴리스로 바꿀지 정한다
+0. 새 그림 자산(배경 4·캐릭터 17)을 개발 서버에서 써 본다 (사용자). 원본 팩은 `C:/D_ClaudeDevelop/CanvaCraft-art-originals/2026-11-12/`로 옮겨 두었다
+0. Vercel에서 저장소를 연결한다 (사용자). `vercel.json`은 main에 들어 있으므로 Production 브랜치는 기본값 main 그대로 둔다([RELEASE.md](RELEASE.md) §Vercel에 올리기)
+0. 애니메이션에서 내려받은 MP4를 Windows 미디어 플레이어로 열어 본다 (사용자). 2026-11-12 사용자가 개발 서버로 애니메이션 편집기를 써 보고 잘 된다고 했다. 웹캠으로 찍기(후속)가 필요한지도 이때 정한다
 1. 밈으로 쓸 가족 그림 전달 (사용자). 출처는 정해졌다(2026-11-10: 밈은 가족 그림, 소리는 코드 합성). 효과음 12·음악 4는 들어갔고 밈은 아직 자리 표시다([asset-licenses.md](asset-licenses.md), 사용법 `assets-src/drawings/README.md`)
 2. 아이폰 영상(MOV·HEVC) 넣기 확인, 내보낸 MP4를 Windows 미디어 플레이어로 재생 (사용자). 2026-11-10 사용자가 실제 PC에서 영상을 넣어 만들고 내보내기까지 되는 것을 확인했다. 아이폰 영상은 지금 없어 못 했다
-3. 보호자 계정으로 YouTube 비공개 업로드 (사용자, 맨 마지막에 하기로 함). 정식 릴리스로 바꿀지, 브랜치를 main에 합칠지는 이 확인 뒤 정한다
+3. 보호자 계정으로 YouTube 비공개 업로드 (사용자, 맨 마지막에 하기로 함). 정식 릴리스로 바꿀지는 이 확인 뒤 정한다(main 합치기는 2026-11-12에 했다)
 4. 시작 화면이 생겼으니 슬라이드만 쓰던 사람도 첫 화면에서 "슬라이드 만들기"를 한 번 더 누른다. 실제 사용에서 불편한지 확인 (사용자)
 5. `CanvaCraft.exe`를 집 PC에서 실행해 보기 (사용자)
 6. 터치 기기 확인, 어린이 사용성 관찰 (사용자, 보호자·교사 입회)
@@ -59,10 +72,16 @@
 - 글꼴을 고른 글씨는 편집용 PPT에서 모양이 달라진다. 내려받기 화면과 완료 안내에서 알리지만 아이들이 놓칠 수 있다.
 - 공개 배포를 한다면 Canva와 비슷한 배치와 CanvaCraft라는 이름의 권리 문제를 먼저 확인해야 한다. 아직 검토하지 않았다.
 - 성능 수치는 고성능 개발 PC와 합성 사진 기준이다. RAM 8GB 기기에서 확인하지 않았다.
+- 애니메이션은 슬라이드의 편집 화면(`Editor`)을 함께 쓴다. `Editor`를 고치면 두 편집기가 함께 바뀌므로 슬라이드 e2e와 `tests/e2e/animation*.spec.ts`를 함께 돌려야 한다. 저장 코드(`storage/database.ts`와 `animation/animationDatabase.ts`)와 원본 파일 코드(`storage/projectFile.ts`와 `animation/animationFile.ts`)는 같은 규칙을 두 벌로 쓰므로 한쪽의 결함을 고치면 다른 쪽도 확인한다.
+- 애니메이션의 내보내기는 장을 메인 스레드에서 그린다. 사진 4장이 든 장은 한 장에 약 100ms가 걸려 100장이면 약 10초다(개발 PC). 느린 PC에서는 더 길고, 8GB PC에서는 재지 않았다.
+- 만화는 슬라이드의 편집 화면(`Editor`)을 애니메이션과 함께 쓴다. `Editor`·`SlideCanvas`·`TopBar`를 고치면 세 편집기가 함께 바뀌므로 슬라이드 e2e, `tests/e2e/animation*.spec.ts`, `tests/e2e/comic*.spec.ts`를 모두 돌린다.
+- 애니메이션과 만화의 저장·원본 파일·작품 목록·세션 코드는 `src/deck/` 한 벌이다. 한쪽을 위해 고치면 두 편집기의 저장소 시험(`animationStorage.spec.ts`, `comicStorage.spec.ts`)을 모두 돌린다. 슬라이드 저장 코드(`storage/database.ts`)는 같은 규칙의 다른 파일이므로 결함을 고칠 때 함께 확인한다.
+- 만화의 말풍선 짝 규칙은 편집 명령 여덟 가지에 걸쳐 있다(`src/commands/comicApply.ts`). 슬라이드에 새 편집 명령을 더하면 그 명령이 요소를 없애거나 복제하거나 옮기는지 보고 짝 규칙과 `tests/contracts/comicCommands.spec.ts`를 함께 고친다. 빠뜨리면 없는 요소를 가리키는 짝이 남아 작품이 검사에서 거부된다(명령 뒤 정리 `prune`이 한 번 더 막는다).
+- 만화책 PDF와 그림 PNG는 인쇄해 보지 않았다. 프린터 여백(지금 10mm)에 칸이 잘리는지, 8칸 배치의 대사가 종이에서 읽히는지는 미확인이다.
 
 **결론**
 
-슬라이드는 만들고, 저절로 저장되고, 다시 열고, 출력하는 흐름이 동작한다. 발표까지 연결됐고 배포 패키지를 만들 수 있다. 남은 것은 사람·기기 확인과 공개 배포 결정이다. 영상은 시작 화면에서 들어가 영상을 넣고 자르고 자막·밈·음악을 넣어 MP4로 내보내기까지 된다. 남은 것은 실제 휴대폰 영상·플레이어·YouTube 확인, 실제 밈 그림, 8GB PC 확인이다. 영상 편집기가 든 실행 파일은 프리릴리스 `v0.0.3`이다.
+슬라이드는 만들고, 저절로 저장되고, 다시 열고, 출력하는 흐름이 동작한다. 발표까지 연결됐고 배포 패키지를 만들 수 있다. 남은 것은 사람·기기 확인과 공개 배포 결정이다. 영상은 시작 화면에서 들어가 영상을 넣고 자르고 자막·밈·음악을 넣어 MP4로 내보내기까지 된다. 남은 것은 실제 휴대폰 영상·플레이어·YouTube 확인, 실제 밈 그림, 8GB PC 확인이다. 영상 편집기가 든 실행 파일은 프리릴리스 `v0.0.3`이다. 애니메이션은 시작 화면에서 들어가 장을 그리고 복사해 재생하고 MP4로 내려받기까지 자동 시험으로 확인했다. 남은 것은 사람이 직접 써 보는 일과 플레이어·YouTube·8GB PC 확인이다.
 
 ## 사용자 확정 요구: Canva 편집기 UI 일치
 
@@ -95,6 +114,12 @@
 | 자막·밈·소리·내보내기(영상 V5~V7) | 완료. 자막 입력·서식·시간, 밈 패널·끌어놓기·동시 상한, 소리 패널, Worker 내보내기(MP4/WebM, 소리 섞기, moov 앞), 출력 해독 시험 | 주의. 밈은 자리 표시 자산(가족 그림 대기), 효과음·음악은 합성음 실제 자산. 플레이어·YouTube·실제 휴대폰 영상·10분 출력 미확인 |
 | 영상 넣기·미리보기·타임라인(영상 V4) | 완료. Worker 가져오기(형식·해독 가능 확인·복사·조각 해시·첫 프레임), 미리보기 재생(조각 경계 50~134ms), 재생 막대·맞춤 배율·자르기·다듬기·순서·소리·지우기, 끌어놓기, 배포본 CSP. npm test 389·배포본 14·실행 파일 시험 통과 | 주의. 실제 휴대폰 영상·큰 파일 복사 속도·터치 다듬기 미확인. 미룬 것은 video-contracts.md §9 V4 행 |
 | 시작 화면·영상 편집기 틀(영상 V3) | 완료. 시작 화면 타일 2개·최근 작품 6개, 새로고침 복원(`{kind,id}`), 영상 문서·명령 18개·검사, OPFS·IndexedDB 저장, `.canvavideo`(ZIP64 포함) 왕복. npm test 382·배포본 13·실행 파일 시험 통과 | 주의. 영상 넣기·미리보기 전이라 실제 영상으로는 아직 쓸 수 없다. 미룬 것 6개는 video-contracts.md §9 V3 행 |
+| 애니메이션 문서·명령·저장·원본 파일(A3) | 완료. `AnimationProject`(슬라이드 필드 + 빠르기·음악·길게 보이기), 명령 20개(슬라이드 18 + `setAnimation`·`setFrameHold`), 검사, IndexedDB `canvacraft-animation`, `.canvaanim` 왕복. 계약 시험 101·저장소 시험 6 | 주의. 저장·원본 파일 코드가 슬라이드와 두 벌이다 |
+| 애니메이션 편집 화면(A4·A5) | 완료. 셋째 타일·작품 목록·새로고침 복원, + 타일 복사, 애니메이션 패널, 길게 보이기 배지·메뉴, 양파 껍질, 재생 미리보기. e2e 12개. 양파 껍질을 켠 300획 장 끌기 p95 16.8ms | 주의. 사람이 써 보지 않았다. 재생 중 음악이 들리는지, 실제 터치 기기 미확인 |
+| 애니메이션 MP4 내보내기(A6) | 완료. 메인 스레드가 그리고 영상 Worker가 인코딩(24fps 반복, H.264+AAC, 안 되면 WebM). 출력을 다시 해독해 프레임 수·길이·장 전환·소리 확인. e2e 5개, 배포본 시험 1개 | 주의. Windows 미디어 플레이어·YouTube·8GB PC 미확인 |
+| 만화 문서·명령·저장·원본 파일(K3) | 완료. `ComicProject`(슬라이드 필드 + 칸 배치·말풍선 짝), 명령 20개(슬라이드 18 + `setComicLayout`·`addBubble`)와 짝 맞추기, 저장소 `canvacraft-comic`, 원본 `.canvacomic`. 저장·원본 파일 코드는 애니메이션과 함께 쓰는 `src/deck/`. 계약 시험 132개 + 저장소 시험 6개 | 쓰기 오류 주입 시험은 슬라이드 저장소 것만 있다 |
+| 만화 편집 화면(K4·K5) | 완료. 넷째 타일·작품 목록·새로고침 복원, 만화 패널(말풍선 9·효과 그림 12·효과 글씨 6·칸 배치 3), 말풍선 넣고 바로 대사 쓰기, 끄는 동안 짝 함께 그리기, 칸 목록 쪽 배지, 만화 보기. e2e 13개 | 사람이 써 보는 확인, 실제 터치 기기 |
+| 만화 내보내기(K6) | 완료. 쪽 조립 함수 하나가 만화 보기·PNG·PDF에 쓰인다. A4, 포인트당 3픽셀. 내려받은 파일을 다시 읽어 쪽 수·종이 크기·칸 자리의 색을 확인(e2e 5개) | **인쇄**, RAM 8GB PC |
 | 단일 실행 파일 | 완료. 앱을 품고 127.0.0.1:47831로 내주며 기본 브라우저를 연다. 배포본 시험 전체, 끄고 다시 켜도 작품 유지 통과. 코드는 `launcher/`, 빌드는 `scripts/build-exe.mjs` | 주의. 다른 PC·알림 영역 아이콘 미확인. 코드 서명 없음 |
 | 배포 패키지 | 완료. 하위 경로 동작, 보안 정책, 외부 요청 0건, 사진 정보 미포함을 배포본으로 확인. `npm run package`. 실제 호스트에 올린 적은 없다 | 주의. HTTPS 필수 |
 | 준비 중으로 남긴 곳 | 없음 | 해당 Phase에서 연결 |
@@ -138,7 +163,7 @@ npm.cmd run dev
 
 ## 4. 완료된 것
 
-코드 구조. 문서를 바꾸는 곳은 공통 틀 `src/state/history.ts`를 쓰는 `src/state/store.ts`(슬라이드)·`src/state/videoStore.ts`(영상)의 dispatch·undo·redo뿐이다.
+코드 구조. 문서를 바꾸는 곳은 공통 틀 `src/state/history.ts`를 쓰는 `src/state/store.ts`(슬라이드)·`src/state/videoStore.ts`(영상)·`src/state/animationStore.ts`(애니메이션)의 dispatch·undo·redo뿐이다.
 
 | 경로 | 내용 |
 |---|---|
@@ -162,6 +187,18 @@ npm.cmd run dev
 | `src/app/StartScreen.tsx`, `currentProject.ts` | 시작 화면, 새로고침 복원 기억 값 |
 | `tests/fixtures/video` | 영상 공통 fixture(WebM 2개 + 문서). `scripts/make-video-fixture.mjs`로 다시 만든다(개발 서버 필요) |
 | `src/videoprobe` | 영상 V2 측정용 시험 페이지·Worker. `/video-probe.html`(다른 PC에서 단추로 실행해 JSON을 받는다). 자동 시험은 `tests/video-phase2`, `npx playwright test --config playwright.video-phase2.config.ts`(포트 5179, 설치된 Chrome·Edge 필요). 제품 코드가 아니다 |
+| `src/app/Editor.tsx` | 편집 화면(슬라이드와 애니메이션이 함께 쓴다). `App.tsx`에서 옮겼고 `App.tsx`에는 화면 이동만 남았다. 다른 편집기가 바꿔 끼우는 지점은 `EditorVariant`(저장·원본 파일, 여섯째 도구, + 타일, 장 목록 배지·메뉴, 캔버스 밑그림, 발표 자리, 내려받기 형식)이고 주지 않으면 슬라이드 동작이다 |
+| `src/domain/animation*.ts`, `src/commands/animationApply.ts`, `src/state/animationStore.ts` | 애니메이션 문서 타입·허용값·검사(`validateAnimationProject`는 슬라이드 필드를 `validateProject`에 넘긴다)·명령(슬라이드 명령은 `applyCommand`에 넘기고 `holds`만 맞춘다)·저장소. DOM을 쓰지 않는다 |
+| `src/animation` | `AnimationApp`·`AnimationHome`(시작 화면에서 지연 로딩), `AnimationEditor`(`Editor`에 선택 인자를 채워 넘긴다), `AnimationPanel`, `OnionSkin`(양파 껍질), `AnimationPlayer`·`previewCache`(재생), `frameTimes`(장 → 프레임 식), `animationDatabase`(IndexedDB `canvacraft-animation`), `animationFile`(`.canvaanim`), `exportAnimation`(내보내기 메인 쪽)·`exportFiles`(OPFS 임시 폴더) |
+| `src/video/animationJob.ts` | 애니메이션 내보내기의 Worker 쪽. `mediaWorker.ts`가 작업 종류 `exportAnimation`으로 부른다(Mediabunny를 두 번 묶지 않으려고 영상 Worker를 함께 쓴다) |
+| `src/animprobe` | 애니메이션 A2 측정용 시험 페이지·Worker(`/anim-probe.html`). 자동 시험은 `tests/animation-phase2`, `npx playwright test -c playwright.animation-phase2.config.ts --project=chromium`(포트 5183). 제품 코드가 아니다 |
+| 애니메이션 시험 | 계약 `tests/contracts/animationCommands·animationValidate·animationFile.spec.ts`(공통 샘플은 `animationHelpers.ts`가 슬라이드 샘플에 필드를 더해 만든다), 저장소 `tests/e2e/animationStorage.spec.ts`, 화면 `tests/e2e/animation.spec.ts`, 내보내기 `tests/e2e/animationExport.spec.ts`(출력을 다시 해독해 비교), 배포본 `tests/release/release.spec.ts`의 애니메이션 항목 |
+| `src/domain/comic*.ts`, `src/commands/comicApply.ts`, `src/state/comicStore.ts` | 만화 문서 타입·허용값·검사(`validateComicProject`), 말풍선 짝 자리 계산(`comicBubbles.ts`의 `followBubble`·`carryBubble`), 명령 적용과 짝 맞추기, 만화 저장소. DOM을 쓰지 않는다 |
+| `src/comic` | 만화 편집기: `ComicApp`(진입), `ComicHome`(목록), `ComicEditor`(`Editor`에 넘길 값), `ComicPanel`, `ComicReader`(만화 보기), `pageLayout.ts`(쪽 크기·칸 자리), `composePage.ts`(쪽 조립), `exportComic.ts`(PDF·PNG, 내려받을 때 불러온다), `comicAssets.ts`(그림 묶음·처음 놓을 자리), `comicDatabase.ts`·`comicFile.ts`(공통 틀을 부른다) |
+| `src/deck` | 애니메이션·만화가 함께 쓰는 저장소(`deckDatabase.ts`)·원본 파일(`deckFile.ts`)·작품 목록(`DeckHome.tsx`)·진입 화면(`DeckApp.tsx`). 편집기마다 데이터베이스 이름·검사 함수·글귀를 넘겨 쓴다. 슬라이드는 쓰지 않는다 |
+| `public/comic`, `scripts/make-comic-assets.mjs` | 만화 그림 묶음(말풍선 9·효과 그림 12, 직접 그린 SVG와 PNG, manifest). 스크립트를 다시 돌리면 PNG와 해시가 다시 만들어진다 |
+| `src/comicprobe` | 만화 K2 확인용 시험 페이지(`/comic-probe.html`). 자동 시험은 `tests/comic-phase2`, `npx playwright test -c playwright.comic-phase2.config.ts`. 제품 코드가 아니고 `npm test`에서 빠진다 |
+| 만화 시험 | 계약 `tests/contracts/comicCommands·comicValidate·comicFile.spec.ts`(공통 샘플은 `comicHelpers.ts`가 슬라이드 샘플에 만화 필드를 더한다), e2e `tests/e2e/comicStorage·comic·comicExport.spec.ts`, 배포본 `tests/release`의 만화 1건 |
 | `tests/release` | 배포본 통합 시험(`npm run test:release`). `scripts/serve-dist.mjs`가 `dist`를 하위 경로에서 내준다 |
 | `tests/contracts`, `tests/e2e`, `tests/fixtures/sample` | 계약·계산 시험, 전체 흐름(`flow.spec.ts`), 조작(`select.spec.ts`), 사진·요소·배경(`library.spec.ts`), 글씨(`text.spec.ts`), 그리기(`draw.spec.ts`), 저장·작품 목록·탭 잠금(`home.spec.ts`), 발표·출력 화면(`present.spec.ts`), 패널 그림 끌어 넣기(`drag.spec.ts`) 시험, 공통 샘플 문서(`scripts/make-fixture.mjs`로 생성). 영상: 명령·검사(`contracts/videoCommands.spec.ts`), 조각 해시·원본 파일(`contracts/videoFile.spec.ts`), 저장소(`e2e/videoStorage.spec.ts`), 시작 화면·영상 화면(`e2e/video.spec.ts`), 가져오기·미리보기·타임라인(`e2e/videoImport.spec.ts`, 경계 간격은 `artifacts/video-v4/boundary.json`), 형식 확인(`contracts/videoSniff.spec.ts`), 자막(`e2e/videoCaption.spec.ts`), 밈·소리(`e2e/videoMeme.spec.ts`, `contracts/videoBuiltins.spec.ts`), 내보내기(`e2e/videoExport.spec.ts`, 출력을 다시 해독해 비교). 자리 표시 밈은 `scripts/make-placeholder-assets.mjs`(개발 서버 필요), 효과음·음악은 `scripts/make-sounds.mjs`, 그림 밈은 `scripts/make-drawing-memes.mjs`(`assets-src/drawings`)로 만든다. 슬라이드 시험은 `tests/e2e/start.ts`로 시작 화면을 지난다 |
 
@@ -182,6 +219,13 @@ Phase 2 결정과 근거는 [PHASE2_RESULTS.md](PHASE2_RESULTS.md) §1에 있다
 - 그림 배경은 1672×941이라 정확한 16:9가 아니다. 화면과 출력은 가운데 맞춰 자르고, 편집용 PPT는 JPEG로 다시 만든다. 새 그림을 넣으면 `illustrated-background-pipeline/thumbnails.cjs`로 미리보기를 만든다. 원본 PNG를 패널 카드에 쓰면 카드를 그리는 데만 약 39MB를 받는다.
 - `dist/index.html`의 보안 정책은 `scripts/prune-dist.mjs`가 넣는다. 외부 자원을 새로 쓰거나 글꼴을 `data:`로 넣으면 배포본에서만 막힌다. 그래서 `npm run test:release`가 개발 서버 시험과 별도로 필요하다.
 - 시험 시 Playwright로 큰 파일을 숫자 배열로 넘기지 않는다. 약 10MB 파일 두 개에서 실행 컨텍스트가 끊겼고 base64로 바꾸자 통과했다.
+- 애니메이션 편집기는 `Editor`에 `variant`를 넘겨 만든다. `Editor`가 애니메이션 필드를 직접 읽게 하지 않는다. 애니메이션에서 문서를 바꾸는 화면(패널·장 메뉴)은 `api.perform`을 거쳐 입력 중인 글씨를 먼저 확정한다. 슬라이드 쪽에서 고쳐도 되는 파일은 animation-contracts.md §9의 표뿐이다.
+- 애니메이션 저장소 이름 `canvacraft-animation`, 잠금 이름 `canvacraft-animation-*`, 원본 형식 값 `canvaanimation`은 바꾸지 않는다. 바꾸면 저장된 작품과 내려받은 파일이 열리지 않는다.
+- 애니메이션 출력은 24fps이고 초당 장수(2·4·6·8·12)는 모두 24의 약수다. 선택지를 더하려면 약수인지 먼저 본다(`src/animation/frameTimes.ts`, 계약 §3).
+- 만화 편집기도 `Editor`에 `variant`를 넘겨 만든다. `Editor`가 만화 필드를 직접 읽게 하지 않는다. 말풍선 짝을 바꾸는 곳은 `comicApply.ts` 하나이고, 끄는 동안의 미리 보기도 같은 자리 계산 함수(`comicBubbles.ts`)를 쓴다. 둘이 어긋나면 손을 뗄 때 글씨가 튄다.
+- 만화 저장소 이름 `canvacraft-comic`, 잠금 이름 `canvacraft-comic-*`, 원본 형식 값 `canvacomic`, 칸 배치 이름 `rows3`·`grid4`·`grid8`은 바꾸지 않는다. 바꾸면 저장된 작품이 안 열린다.
+- 만화 그림 묶음의 PNG를 다시 만들면 해시(문서의 사진 id)가 바뀐다. 이미 만든 작품은 자기 사진을 따로 저장하고 있어 그대로 열리지만, 같은 말풍선이 작품 안에 옛 것과 새 것 두 벌로 들어갈 수 있다. 그림을 고칠 까닭이 없으면 다시 만들지 않는다.
+- 실행 파일 시험(`npm run test:exe`)은 사용자의 `CanvaCraft.exe`가 켜져 있으면 돌지 않는다(같은 연결 번호 47831). 켜져 있으면 끄지 말고 사용자에게 알린다.
 
 ## 6. 원본 문서 지도
 
@@ -189,6 +233,12 @@ Phase 2 결정과 근거는 [PHASE2_RESULTS.md](PHASE2_RESULTS.md) §1에 있다
 |---|---|
 | [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) | 슬라이드 편집기 10단계 계획과 Phase별 완료 기준 |
 | [VIDEO_EDITOR_PLAN.md](VIDEO_EDITOR_PLAN.md) | 영상 편집기 기획: 시작 화면, 기능 범위, 내보내기 기술 후보, V1~V8 계획, 사용자 결정 항목(확정). 구현 전 |
+| [ANIMATION_PLAN.md](ANIMATION_PLAN.md) | 스톱모션 애니메이션 기획: 셋째 타일, 구조(저장은 분리·편집 부품은 재사용), 슬라이드 파일별 영향, A1~A7 계획, 사용자 결정 14개(확정), 위험 요소 |
+| [animation-contracts.md](animation-contracts.md) | 애니메이션 편집기 데이터·명령·검사·저장·시간 식·출력 계약, `Editor` 선택 인자 표, 단계별 구현 기록. 기획안과 다르면 이 문서가 우선 |
+| [ANIMATION_PHASE2_RESULTS.md](ANIMATION_PHASE2_RESULTS.md) | 애니메이션 A2 측정 결과: 장 그리기 시간, 내보내기 시간·파일 크기·메모리, 출력 확인, 결정과 미검증 목록 |
+| [COMIC_PLAN.md](COMIC_PLAN.md) | 만화 만들기 기획: 넷째 타일, 칸 하나 = 장 하나, 말풍선 짝, 쪽 구성과 PDF·PNG 출력, 기존 파일별 영향, K1~K7 계획, 사용자 결정 항목(확정). 구현하면서 달라진 점은 계약 §10 |
+| [comic-contracts.md](comic-contracts.md) | 만화 편집기 데이터·명령·짝 맞추기·검사·쪽 구성·저장·출력 계약, `Editor` 선택 인자, 단계별 구현 기록. 기획안과 다르면 이 문서가 우선 |
+| [COMIC_PHASE2_RESULTS.md](COMIC_PHASE2_RESULTS.md) | 만화 K2 확인 결과: 쪽 조립 시간, 100칸 PDF 시간·크기, 정한 것과 미확인(인쇄) |
 | [video-contracts.md](video-contracts.md) | 영상 편집기 데이터·명령·검사·상한·저장·출력 계약. 기획안과 다르면 이 문서가 우선. V2 결정 반영(2개 잠정) |
 | [VIDEO_PHASE2_RESULTS.md](VIDEO_PHASE2_RESULTS.md) | 영상 V2 기술 시험 결과: 코덱 지원표, 1분·10분 출력 시간·메모리, 재생, 밈 형식, 저장소, CSP, 미검증 목록. 측정 코드는 `src/videoprobe`, `tests/video-phase2` |
 | [contracts.md](contracts.md) | 슬라이드 편집기 데이터·명령·저장·출력 규칙과 결정 |
